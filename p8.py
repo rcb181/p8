@@ -1,31 +1,29 @@
 import matplotlib.pyplot as plt
-from sklearn import datasets
+from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import accuracy_score
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, classification_report
 
+data = load_breast_cancer()
+X = data.data
+y = data.target
 
-faces = datasets.fetch_olivetti_faces(shuffle=True, random_state=42)
-X, y = faces.data, faces.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
-
-
-model = GaussianNB()
+model = DecisionTreeClassifier()
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
 
-print(f"Accuracy of Naive Bayes Classifier: {accuracy * 100:.2f}%")
+print("Accuracy:", accuracy_score(y_test, y_pred))
 
-plt.figure(figsize=(10, 5))
-for i in range(5):
-    plt.subplot(1, 5, i + 1)
-    plt.imshow(X_test[i].reshape(64,64), cmap="gray")
-    plt.title(f"Pred: {y_pred[i]}")
-    plt.axis("off")
+print(classification_report(y_test, y_pred,
+      target_names=data.target_names))
 
+plt.figure(figsize=(12,8))
+plot_tree(model, filled=True)
 plt.show()
+
+p = model.predict([X_test[0]])
+print("Prediction:",
+      "Benign" if p[0] == 1 else "Malignant")
